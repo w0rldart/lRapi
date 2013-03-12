@@ -14,20 +14,20 @@ class Places_Task {
 places:list_all
 places:show [version]
 places:create_list
-places:creat_spot [name] [type] [address] [lat] [lng] [city] [code]
+places:creat_place [name] [type] [address] [lat] [lng] [city] [code]
 \n=====================END====================\n
 EOT;
     }
 
 	public function list_all()
 	{
-		$raw_places = Spot_List::get(array('version', 'list'));
+		$raw_places = Place_List::get(array('version', 'list'));
 
 		$places_list = array();
 		$i = 0;
-		foreach ($raw_places as $each_spot)
+		foreach ($raw_places as $each_place)
 		{
-			foreach ($each_spot->attributes as $key => $value)
+			foreach ($each_place->attributes as $key => $value)
 			{
 				$places_list[$i][$key] = $value;
 			}
@@ -38,7 +38,7 @@ EOT;
 
 	public function create_list()
 	{
-		if ( ! $raw_places = Spot::get(array('id', 'name', 'type', 'address', 'lat', 'lng', 'code')))
+		if ( ! $raw_places = Place::get(array('id', 'name', 'type', 'address', 'lat', 'lng', 'code')))
 		{
 			echo "\nError: There are no places in the database!\n";
 			$this->help();
@@ -47,9 +47,9 @@ EOT;
 		{
 			$places = array();
 			$i = 0;
-			foreach ($raw_places as $each_spot)
+			foreach ($raw_places as $each_place)
 			{
-				foreach ($each_spot->attributes as $key => $value)
+				foreach ($each_place->attributes as $key => $value)
 				{
 					$places[$i][$key] = $value;
 				}
@@ -59,8 +59,8 @@ EOT;
 			$places_encoded = serialize($places);
 			$places_hashed  = sha1($places_encoded);
 
-			$places_list = Spot_List::where('hash', '=', $places_hashed)->first();
-			$new_list = new Spot_List;
+			$places_list = Place_List::where('hash', '=', $places_hashed)->first();
+			$new_list = new Place_List;
 
 			if($places_list)
 			{
@@ -69,7 +69,7 @@ EOT;
 			}
 			else
 			{
-				$last_version = Spot_List::order_by('id', 'desc')->take(1)->only('version');
+				$last_version = Place_List::order_by('id', 'desc')->take(1)->only('version');
 
 				$increment = '001';
 				$result = sprintf('%03d', $last_version + $increment);
@@ -99,45 +99,42 @@ EOT;
 	}
 
 	/**
-	 * Generate a spot
+	 * Generate a place
 	 *
 	 * USAGE:
 	 *
-	 * php artisan places:creat_spot [name] [type] [address] [lat] [lng] [city] [code]
+	 * php artisan places:creat_place [name] [type] [address] [lat] [lng] [city] [code]
 	 *
 	 * @param $args array
 	 * @return string
 	 */
-	public function create_spot($args)
+	public function create_place($args)
 	{
 		if ( empty($args) ) {
             echo "\nError: Please supply the required parameters.\n";
-            echo "Usage: places:creat_spot [name] [type] [address] [lat] [lng] [city] [code] \n";
+            echo "Usage: places:creat_place [name] [type] [address] [lat] [lng] [city] [code] \n";
             return;
         }
 
-		$new_spot = new Spot;
+		$new_place = new Place;
 
-		$new_spot->name    = $args[0];
-		$new_spot->type    = $args[1];
-		$new_spot->address = $args[2];
-		$new_spot->lat     = $args[3];
-		$new_spot->lng     = $args[4];
-		$new_spot->city    = $args[5];
-		$new_spot->code    = $args[6];
+		$new_place->name    = $args[0];
+		$new_place->type    = $args[1];
+		$new_place->address = $args[2];
+		$new_place->lat     = $args[3];
+		$new_place->lng     = $args[4];
+		$new_place->city    = $args[5];
+		$new_place->code    = $args[6];
 
-		if( ! $new_spot->save())
+		if( ! $new_place->save())
 		{
-			echo "Error: Couldn't save the spot, please try again!";
+			echo "Error: Couldn't save the place, please try again!";
 			return;
 		}
 		else
 		{
 			$params = implode(', ', $args);
-			echo "\nA new spot has been created with the following parameters: $params\n";
+			echo "\nA new place has been created with the following parameters: $params\n";
 		}
 	}
-
-	#print_r(Response::json($places));
-	#print_r(sha1(json_encode($places)));
 }
