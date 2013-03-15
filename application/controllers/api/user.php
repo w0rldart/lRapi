@@ -52,117 +52,130 @@ class Api_User_Controller extends Api_Controller {
 		$user = Input::all();
 
 		/**
-		 * Check if there isn't any existing user with that mail
-		 */
-        if ( ! User::where('email', '=', $user['email'])->first())
-    	{
-    		$new = new User;
+		* I need my precious device_id, can't live without it!
+		*/
+		if (Device::where('device_id', '=', $user['device_id'])->first())
+		{
+			/**
+			 * Check if there isn't any existing user with that mail
+			 */
+	        if ( ! User::where('email', '=', $user['email'])->first())
+	    	{
+	    		$new = new User;
 
-    		$new->email = $user['email'];
-    		$new->name = $user['name'];
-    		
-    		/*
-    		 * Check for facebook token, and if not, for password
-    		 */
-    		if(isset($user['token_facebook']))
-    		{
-				$new->token_facebook = $user['token_facebook'];
-				$new->password = null;
-    		}
-    		else
-    		{
-				$new->password = Hash::make($user['password']);
-    		}
+	    		$new->email = $user['email'];
+	    		$new->name = $user['name'];
+	    		
+	    		/*
+	    		 * Check for facebook token, and if not, for password
+	    		 */
+	    		if(isset($user['token_facebook']))
+	    		{
+					$new->token_facebook = $user['token_facebook'];
+					$new->password = null;
+	    		}
+	    		else
+	    		{
+					$new->password = Hash::make($user['password']);
+	    		}
 
-    		/*
-    		 * Create user
-    		 */
-	        if($new->save())
-	        {
-	        	$user['id'] = $new->attributes['id'];
-				$user['activation_hash'] = Str::random(30);
+	    		/*
+	    		 * Create user
+	    		 */
+		        if($new->save())
+		        {
+		        	$user['id'] = $new->attributes['id'];
+					$user['activation_hash'] = Str::random(30);
 
-	        	$this->response = array(
-            		'user_id' => $user['id'],
-            	);
+		        	$this->response = array(
+	            		'user_id' => $user['id'],
+	            	);
 
-	        	if ( ! isset($user['token_facebook']))
-	        	{
-					$user_activation = new Activation;
-					$user_activation->user_id = $user['id'];
-					$user_activation->hash = $user['activation_hash'];
+		        	if ( ! isset($user['token_facebook']))
+		        	{
+						$user_activation = new Activation;
+						$user_activation->user_id = $user['id'];
+						$user_activation->hash = $user['activation_hash'];
 
-					if ($user_activation->save())
-					{
-						if( ! Device::update($user['device_id'], array('user_id'=>$user['id'])))
+						if ($user_activation->save())
 						{
-		                    $this->response['error'] = array(
-		                    	'type' => 'db_insert_error',
-		                    	'message' => 'Can\'t assign user_id to device',
-		                    );
+							if( ! Device::update($user['device_id'], array('user_id'=>$user['id'])))
+							{
+			                    $this->response['error'] = array(
+			                    	'type' => 'db_insert_error',
+			                    	'message' => 'Can\'t assign user_id to device',
+			                    );
+							}
+
+							Session::put('user', $user);
+
+			                Message::send(function($mail)
+			                {
+			                    $user = Session::get('user');
+
+			                    $mail->to($user['email']);
+			                    $mail->from(Config::get('lrapi_config.mail.email', null), Config::get('lrapi_config.mail.name', null));
+
+								$mail->subject('Confirm user registration');
+			                    $mail->body('view: response.default');
+
+			                    $mail->body->name = $user['name'];
+
+			                    $mail->body->link = URL::to("activate/user/{$user['id']}/{$user['activation_hash']}");
+
+			                    $mail->html(true);
+
+			                    Session::forget('user');
+			                });
+
+			                if( ! Message::was_sent())
+			                {
+			                    $this->response['error'] = array(
+			                    	'type' => 'internal',
+			                    	'message' => 'Couldn\'t send the confirmation email'
+			                    );		                	
+			                }
+			            }
+						else
+						{
+							$this->response['error'] = array(
+								'type' => 'db_insert_error',
+								'message' => 'Couldn\'t generate the confirmation parameters for the account',
+							);
 						}
-
-						Session::put('user', $user);
-
-		                Message::send(function($mail)
-		                {
-		                    $user = Session::get('user');
-
-		                    $mail->to($user['email']);
-		                    $mail->from(Config::get('lrapi_config.mail.email', null), Config::get('lrapi_config.mail.name', null));
-
-							$mail->subject('Confirm user registration');
-		                    $mail->body('view: response.default');
-
-		                    $mail->body->name = $user['name'];
-
-		                    $mail->body->link = URL::to("activate/user/{$user['id']}/{$user['hash']}");
-
-		                    $mail->html(true);
-
-		                    Session::forget('user');
-		                });
-
-		                if( ! Message::was_sent())
-		                {
-		                    $this->response['error'] = array(
-		                    	'type' => 'internal',
-		                    	'message' => 'Couldn\'t send the confirmation email'
-		                    );		                	
-		                }
-		            }
+					}
 					else
 					{
-						$this->response['error'] = array(
-							'type' => 'db_insert_error',
-							'message' => 'Couldn\'t generate the confirmation parameters for the account',
-						);
+						if ( ! User::where_id($user['id'])->update(array('active'=>1)))
+						{
+							$this->response['error'] = array(
+								'type' => 'db_insert_error',
+								'message' => 'Account couldn\'t be activated, please try ',
+							);
+						}
 					}
-				}
-				else
-				{
-					if ( ! User::where_id($user['id'])->update(array('active'=>1)))
-					{
-						$this->response['error'] = array(
-							'type' => 'db_insert_error',
-							'message' => 'Account couldn\'t be activated, please try ',
-						);
-					}
-				}
-	        }
-	        else
-	        {
-	        	$this->response['error'] = array(
-					'type' => 'db_insert_error',
-					'message' => 'There was an error while creating the account, please try again!',
+		        }
+		        else
+		        {
+		        	$this->response['error'] = array(
+						'type' => 'db_insert_error',
+						'message' => 'There was an error while creating the account, please try again!',
+					);
+		        }
+		    }
+		    else
+		    {
+				$this->response['error'] = array(
+					'type' => 'register_failed',
+					'message' => 'There is already a user registered, with those credentials.',
 				);
-	        }
-	    }
+		    }
+		}
 	    else
 	    {
 			$this->response['error'] = array(
 				'type' => 'register_failed',
-				'message' => 'There is already a user registered, with those credentials.',
+				'message' => 'No such device id registered',
 			);
 	    }
 
