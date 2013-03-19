@@ -1,4 +1,5 @@
 ## Demo VHOST
+This is just a demo of what a vhost should be to get started with lRapi. I use it, it works.
 
 	<VirtualHost *:80>
         	DocumentRoot /var/www/app.com/web
@@ -7,7 +8,7 @@
         	ErrorLog /var/www/logs/app-error.log
         	LogLevel debug
 
-        	<Directory "/var/www/app/web">
+        	<Directory "/var/www/app.com/web">
                 	Options Indexes Includes FollowSymLinks MultiViews
                 	AllowOverride all
                 	Order allow,deny
