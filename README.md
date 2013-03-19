@@ -1,20 +1,19 @@
 ## Demo VHOST
 
-<VirtualHost *:80>
-        DocumentRoot /var/www/app.com/web
-        ServerName app.com
+	<VirtualHost *:80>
+        	DocumentRoot /var/www/app.com/web
+        	ServerName app.com
 
-        ErrorLog /var/www/logs/app-error.log
-        LogLevel debug
+        	ErrorLog /var/www/logs/app-error.log
+        	LogLevel debug
 
-        <Directory "/var/www/app/web">
-                Options Indexes Includes FollowSymLinks MultiViews
-                AllowOverride all
-                Order allow,deny
-                Allow from all
-        </Directory>
-
-</VirtualHost>
+        	<Directory "/var/www/app/web">
+                	Options Indexes Includes FollowSymLinks MultiViews
+                	AllowOverride all
+                	Order allow,deny
+                	Allow from all
+        	</Directory>
+	</VirtualHost>
 
 ## Starting documentation
 
