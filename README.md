@@ -18,4 +18,5 @@ This is just a demo of what a vhost should be to get started with lRapi. I use i
 
 ## Starting documentation
 
-The home page of the app contains some info I wrote about the app.
+ - The home page of the app contains some info I wrote about the app.
+ - logs database and lrapi table here: https://gist.github.com/w0rldart/5191274
