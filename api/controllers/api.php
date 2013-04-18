@@ -66,7 +66,7 @@ class Api_Controller extends Base_Controller {
 		$log_requests->input      = json_encode($input);
 		$log_requests->headers    = json_encode(Request::headers());
 		$log_requests->ip         = Request::ip();
-		$log_requests->created_at = new \DateTime;;
+		$log_requests->created_at = new \DateTime;
 
 		if ( ! $log_requests->save())
 		{
