@@ -272,7 +272,7 @@ Full-Width Styles
 
 .inner {
   position: relative;
-  max-width: 640px;
+  max-width: 840px;
   padding: 20px 10px;
   margin: 0 auto;
 }
@@ -331,6 +331,43 @@ Full-Width Styles
   background: url('../images/icon_download.png') no-repeat 0% 90%;
 }
 
+.details {
+	/*margin-left: 20px;*/
+}
+
+.details h3 {
+	border-left: 4px solid #888;
+	padding-left: 10px;
+}
+
+.listing  li{
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+table.params {
+	margin-bottom:15px;
+	border:1px solid #f5f5f5;
+	width:100%
+}
+
+table.params td {
+	padding: 10px;
+	margin: 0;
+	border: 1px solid #E2E2E2 !important;
+	vertical-align: middle;
+}
+
+table.params td:nth-child(2) {
+	font-weight: bold;
+}
+
+table.params td.param {
+	border-right:1px solid #E2E2E2;
+	font-size:1.1em;
+}
+
 .zip_download_link {
   display: block;
   float: right;
@@ -374,6 +411,9 @@ Full-Width Styles
   background: #212121;
 }
 
+.out-links  li{
+	display: inline-block;
+}
 
 
 /*******************************************************************************
