@@ -2,7 +2,8 @@ section {}
 
 code {
 	margin-bottom: 5px;
-	white-space: pre-line;
+	white-space: pre-wrap;
+	padding: 10px;
 }
 
 .details {

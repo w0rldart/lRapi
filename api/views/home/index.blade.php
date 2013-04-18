@@ -188,20 +188,20 @@
 							<li> Any <strong>api/{}</strong> calls, will have to contain the token which will be used to authenticate the calls and the key to generate the hash for the parameters sent </li>
 							<li> iOS HMAC SHA1 function to generate the hash (thanks to <a href="htt://twitter.com/nandodelauni" target="_blank">@nandodelauni</a>) <br/>
 								<code>
-									- (NSString *)hmacSha1WithSecret:(NSString *)key
-									{
-									    const char *cKey  = [key cStringUsingEncoding:NSUTF8StringEncoding];
-									    const char *cData = [self cStringUsingEncoding:NSUTF8StringEncoding];
+- (NSString *)hmacSha1WithSecret:(NSString *)key
+{
+	const char *cKey  = [key cStringUsingEncoding:NSUTF8StringEncoding];
+	const char *cData = [self cStringUsingEncoding:NSUTF8StringEncoding];
 
-									    unsigned char cHMAC[CC_SHA1_DIGEST_LENGTH];
+	unsigned char cHMAC[CC_SHA1_DIGEST_LENGTH];
 
-									    CCHmac(kCCHmacAlgSHA1, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
-									    NSData *HMAC = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
+	CCHmac(kCCHmacAlgSHA1, cKey, strlen(cKey), cData, strlen(cData), cHMAC);
+	NSData *HMAC = [[NSData alloc] initWithBytes:cHMAC length:sizeof(cHMAC)];
 
-									    NSString *hash = [HMAC base64EncodedString];								    
+	NSString *hash = [HMAC base64EncodedString];								    
 
-									    return hash;
-									}
+	return hash;
+}
 								</code>
 							</li>
 						</ol>
@@ -210,9 +210,35 @@
 				
 				<section>
 					<header>
+						<h2>Vhost</h2>
+					</header>
+
+					<p> Vhost configuration demo, for apache </p>
+
+					<code>
+&#60;VirtualHost *:80&#62;
+	DocumentRoot /var/www/app.com/web
+	ServerName app.com
+
+	ErrorLog /var/www/logs/app-error.log
+	LogLevel debug
+
+	&#60;Directory "/var/www/app.com/web"&#62;
+			Options Indexes Includes FollowSymLinks MultiViews
+			AllowOverride all
+			Order allow,deny
+			Allow from all
+	&#60;/Directory&#62;
+&#60;/VirtualHost&#62;
+					</code>
+				</section>
+				
+				<section>
+					<header>
 						<h2>More info</h2>
 					</header>
 
+					<p> You may find the logs demo database with the lRapi table here: <a href="https://gist.github.com/w0rldart/5191274">https://gist.github.com/w0rldart/5191274</a> </p>
 					<p> Well, I still have to complete the documentation and add it to my blog as well. Mean while you may find me here: </p>
 
 					<ul class="out-links">
